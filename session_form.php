@@ -72,7 +72,7 @@ class mod_congrea_session_form extends moodleform {
         $teacheroptions = congrea_course_teacher_list($id);
         $mform->addElement('select', 'moderatorid', get_string('selectteacher', 'congrea'), $teacheroptions);
         $mform->addHelpButton('moderatorid', 'selectteacher', 'congrea');
-        // Repeat.
+        //Repeat.
         $mform->addElement('advcheckbox', 'addmultiple', '',
         get_string('repeatevent', 'calendar'),
         array('group' => 1), array(0, 1));

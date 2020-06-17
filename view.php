@@ -609,8 +609,7 @@ if ($session) {
                 $connect = json_decode($sattendence->connect);
                 $disconnect = json_decode($sattendence->disconnect);
                 $studentsstatus = calctime($connect, $disconnect, $sessionstatus->sessionstarttime, $sessionstatus->sessionendtime);
-                if (
-                    !empty($studentsstatus->totalspenttime)
+                if (!empty($studentsstatus->totalspenttime)
                     and $sessionstatus->totalsessiontime >= $studentsstatus->totalspenttime
                 ) {
                     $presence = ($studentsstatus->totalspenttime * 100) / $sessionstatus->totalsessiontime;
@@ -619,6 +618,19 @@ if ($session) {
                 } else {
                     $presence = '-';
                 }
+                if (!$DB->record_exists('congrea_attendance_report', array('userid' => $studentname->id))) {
+                $attendancedbdata = new stdClass();
+                $attendancedbdata->session_id = $session;
+                $attendancedbdata->course_id = $course->id;
+                $attendancedbdata->instance_id = $congrea->id;
+                $attendancedbdata->userid = $studentname->id;
+                $attendancedbdata->attendance = $studentsstatus->totalspenttime;
+                $attendancedbdata->session_duration = $sessionstatus->totalsessiontime;  
+                $attendancedbdata->join_time = (int)$studentsstatus->starttime;
+                $attendancedbdata->exit_time = (int)$studentsstatus->endtime;
+                $attendancedbdata->timecreated = time();
+                // if (!$DB->record_exists('congrea_attendance_report', array('name' => $username))) {
+                $DB->insert_record('congrea_attendance_report', $attendancedbdata); }
             }
             if (!empty(recording_view($sattendence->uid, $recordingattendance))) {
                 $recview = recording_view($sattendence->uid, $recordingattendance);
@@ -673,6 +685,17 @@ if ($session) {
                 $studentname = $DB->get_record('user', array('id' => $data));
                 if (!empty($studentname)) {
                     $username = $studentname->firstname . ' ' . $studentname->lastname;
+                    if (!$DB->record_exists('congrea_attendance_report', array('userid' => $studentname->id))) {
+                    $attendancedbdata->session_id = $session;
+                    $attendancedbdata->course_id = $course->id;
+                    $attendancedbdata->instance_id = $congrea->id;
+                    $attendancedbdata->userid = $studentname->id;
+                    $attendancedbdata->attendance = 0;
+                    $attendancedbdata->session_duration = $sessionstatus->totalsessiontime;  
+                    $attendancedbdata->join_time = 0;
+                    $attendancedbdata->exit_time = 0;
+                    $attendancedbdata->timecreated = time();
+                    $DB->insert_record('congrea_attendance_report', $attendancedbdata); }
                 } else {
                     $username = get_string('nouser', 'mod_congrea');
                 }
